@@ -8,33 +8,30 @@
 #include <stddef.h>
 
 /*
- * Declare a global/static array with get, set, size, and length functions.
+ * Declare a global/static array with get, append, size, and length functions.
  * length() now tracks the last valid index (number of valid elements - 1).
  */
 #define SARR_DECL(name, type, capacity)                                        \
   type name[capacity];                                                         \
-  size_t name##_length_ = 0;                                                   \
+  size_t name##_length_value = 0;                                              \
   const size_t name##_capacity = capacity;                                     \
-  static inline int name##_set(size_t i, type val) {                           \
-    if (i >= name##_capacity) {                                                \
-      return ENOBUFS; /* Error: index out of bounds */                         \
+  static inline int name##_append(type val) {                                  \
+    if (name##_length_value >= name##_capacity) {                              \
+      return ENOBUFS; /* Error: array full */                                  \
     }                                                                          \
-    name[i] = val;                                                             \
-    if (i >= name##_length_) {                                                 \
-      name##_length_ = i + 1;                                                  \
-    }                                                                          \
+    name[name##_length_value++] = val;                                         \
     return 0; /* Success */                                                    \
   }                                                                            \
   static inline int name##_get(size_t i, type *value) {                        \
-    if (i >= name##_length_) {                                                 \
-      return ENOBUFS; /* Error: index out of bounds */                         \
+    if (i >= name##_length_value) {                                            \
+      return ENOENT; /* Error: index out of bounds */                          \
     }                                                                          \
     if (value)                                                                 \
       *value = name[i];                                                        \
     return 0;                                                                  \
   }                                                                            \
   static inline size_t name##_size() { return name##_capacity; }               \
-  static inline size_t name##_length() { return name##_length_; }
+  static inline size_t name##_length() { return name##_length_value; }
 
 /*
  * Declare get, set, size, and length for an array field in a struct.

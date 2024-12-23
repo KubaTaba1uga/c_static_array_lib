@@ -4,26 +4,37 @@
 /* SARR stands for Static Array */
 /* SARRS stands for Static Array in Struct */
 
+#include <errno.h>
 #include <stddef.h>
 
 /*
  * Declare a global/static array with get, set, size, and length functions.
  * length() now tracks the last valid index (number of valid elements - 1).
  */
-#define SARR_DECL(name, type, array_size)                                      \
-  static type name[array_size];                                                \
-  static size_t name##_valid_length = 0;                                       \
-  static inline type name##_get(size_t i) { return name[i]; }                  \
-  static inline void name##_set(size_t i, type val) {                          \
-    name[i] = val;                                                             \
-    if (i >= name##_valid_length) {                                            \
-      name##_valid_length = i + 1;                                             \
+#define SARR_DECL(name, type, capacity)                                        \
+  type name[capacity];                                                         \
+  size_t name##_length_ = 0;                                                   \
+  const size_t name##_capacity = capacity;                                     \
+  static inline int name##_set(size_t i, type val) {                           \
+    if (i >= name##_capacity) {                                                \
+      return ENOBUFS; /* Error: index out of bounds */                         \
     }                                                                          \
+    name[i] = val;                                                             \
+    if (i >= name##_length_) {                                                 \
+      name##_length_ = i + 1;                                                  \
+    }                                                                          \
+    return 0; /* Success */                                                    \
   }                                                                            \
-  static inline size_t name##_size(void) { return array_size; }                \
-  static inline size_t name##_length(void) {                                   \
-    return name##_valid_length > 0 ? name##_valid_length - 1 : 0;              \
-  }
+  static inline int name##_get(size_t i, type *value) {                        \
+    if (i >= name##_length_) {                                                 \
+      return ENOBUFS; /* Error: index out of bounds */                         \
+    }                                                                          \
+    if (value)                                                                 \
+      *value = name[i];                                                        \
+    return 0;                                                                  \
+  }                                                                            \
+  static inline size_t name##_size() { return name##_capacity; }               \
+  static inline size_t name##_length() { return name##_length_; }
 
 /*
  * Declare get, set, size, and length for an array field in a struct.

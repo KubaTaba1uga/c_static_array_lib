@@ -1,152 +1,82 @@
-[![Build](https://github.com/KubaTaba1uga/c_project_template/actions/workflows/build.yaml/badge.svg)](https://github.com/KubaTaba1uga/c_project_template/actions/workflows/build.yaml)
-[![Linter](https://github.com/KubaTaba1uga/c_project_template/actions/workflows/linter.yaml/badge.svg)](https://github.com/KubaTaba1uga/c_project_template/actions/workflows/linter.yaml)
-[![Unit Tests](https://github.com/KubaTaba1uga/c_project_template/actions/workflows/unit-tests.yaml/badge.svg)](https://github.com/KubaTaba1uga/c_project_template/actions/workflows/unit-tests.yaml) 
-[![Unit Tests with Valgrind](https://github.com/KubaTaba1uga/c_project_template/actions/workflows/unit-tests-with-valgrind.yaml/badge.svg)](https://github.com/KubaTaba1uga/c_project_template/actions/workflows/unit-tests-with-valgrind.yaml)
+# C Static Array Library
 
-# C Project Template
+A minimal library providing macros for static arrays in C. This repository includes:
+- Macros for creating static arrays (`SARR_DECL`)  
+- Macros for creating static arrays as struct fields (`SARRS_DECL`)  
+- A Meson-based build system  
+- Unit tests using Unity  
+- `tasks.py` powered by [Invoke](https://www.pyinvoke.org/) for automation
 
-Template for new c projects. Includes build system, testing, mocking, logging, readme, license, pipelines. 
-
-1. [Getting Started](#Getting-Started)
-2. [Prerequisites](#Prerequisites)
-3. [Building](#Building)
-4. [Tests](#Tests)
-5. [Pipelines](#Pipelines)
-6. [Common tasks](#Common-tasks)
-7. [Authors](#Authors)
-8. [License](#License)
-
+## Features
+1. **Header-Only**: Simply include `static_array_lib.h`, no library compilation needed.  
+2. **Static Array Macros**: Simplify creation, access, and length tracking of fixed-size arrays.  
+3. **Meson Build**: Configure, build, and test with Meson.  
+4. **Automation with Invoke**: Use `tasks.py` to run installs, builds, and tests.
 
 ## Getting Started
+1. **Include the Header**  
+   - Copy `include/static_array_lib.h` into your project or reference it directly.  
+   - Example:
+     ```c
+     #include "static_array_lib.h"
+     SARR_DECL(my_array, int, 10);
+     
+     int main() {
+       my_array_append(42);
+       // ...
+       return 0;
+     }
+     ```
+2. **(Optional) Run Tests**  
+   - Install Meson and Unity (or use the provided scripts).  
+   - Configure and run tests:
+     ```bash
+     meson setup build
+     meson compile -C build
+     meson test -C build
+     ```
+   - Or use `tasks.py` with Invoke:
+     ```bash
+     pip install invoke
+     invoke install
+     invoke setup
+     invoke build
+     invoke test
+     ```
 
-Clone project
+## tasks.py & Invoke
+This project includes a `tasks.py` file that defines various tasks for building, testing, and installing dependencies. These tasks use the [Invoke](https://www.pyinvoke.org/) library.  
+
+1. **Install Invoke**  
+   ```bash
+   pip install invoke
+   ```
+2. **Use Invoke tasks**  
+   ```bash
+   invoke install       # Installs Meson, Ruby, and other prerequisites
+   invoke setup         # Sets up Meson build directory
+   invoke build         # Compiles the project
+   invoke test          # Runs the tests
+   ```
+
+## Usage
+Include `include/static_array_lib.h` in your C code:
+```c
+#include "static_array_lib.h"
+SARR_DECL(my_array, int, 10);
+
+int main() {
+    // Append values
+    my_array_append(42);
+    my_array_append(99);
+    // ...
+}
 ```
-git clone https://github.com/KubaTaba1uga/c_project_template.git
-```
-
-Delete template git files
-```
-rm -rf c_project_template/.git
-```
-
-Initiate new git files
-```
-cd c_project_template
-git init
-```
-
-Once you have initialized the repository, create a remote repository somewhere like GitHub.com.
-
-Add the remote URL to your local git repository
-```
-git remote add origin <URL>
-```
-
-Commit at least one file
-
-Push changes
-```
-git push -u origin master
-```
-
-I recommend installing perequesitest and confirming that all tests are passing before src/*, test/* are actually deleted.
-
-Project's name or version can be changed in ./meson.build file.
-
-
-## Prerequisites
-
-- [Meson](https://mesonbuild.com/)
-- [Ruby](https://www.ruby-lang.org/en/)
-- [Python](https://www.python.org/)
-
-Ruby is used by CMock.
-Python is used by Meson.
-
-
-## Building
-
-Install perequesites by scripts
-```
-bash scripts/install_ruby.sh
-bash scripts/install_meson.sh
-```
-
-If installing perequesites by scripts has failed, You need to install them manually.
-
-
-Configure a build for an app and tests
-```
-meson setup build
-```
-
-Compile a build
-```
-meson compile -C build
-```
-
-
-## Tests
-
-Run all tests
-```
-meson test -C build
-```
-
-
-### Style test
-
-New tests units should be grouped by directories.
-To understand more look on ./test directory.
-
-Hierarchial build is very favoured by Meson, splitting test unit's into seperate directories allow keeping meson.builds short and simple.
-
-
-## Pipelines
-
-Some pipelines are configured out of the box:
-- `build.yaml` compiles the project
-- `linter.yaml` makes sure code is inline with .clang-format
-- `unit-tests.yaml` runs unit tests
-- `unit-tests-with-valgrind.yaml` checks for memory leaks in tests
-- `merge-gatekeeper.yaml` makes sure that all pipelines ran successfully before merging pull request
-
-
-## Common tasks
-
-Setting up a build
-```
-bash scripts/setup_build.sh
-```
-
-Compiling a build
-```
-bash scripts/compile_build.sh
-```
-
-Formatting a code
-```
-bash scripts/format_code.sh
-```
-
-Running tests
-```
-bash scripts/run_tests.sh
-```
-
-Running tests with valgrind
-```
-bash scripts/run_valgrind_tests.sh
-```
-
 
 ## Authors
-
-  - **Jakub Buczyński** - *C Project Template* -
-    [KubaTaba1uga](https://github.com/KubaTaba1uga)
+- **Jakub Buczyński** - *C Static Array Lib* -
+  [KubaTaba1uga](https://github.com/KubaTaba1uga)
 
 ## License
+Distributed under the [MIT](LICENSE.md).
 
-This project is licensed under the [MIT](LICENSE.md)
-License - see the [LICENSE.md](LICENSE.md) file for
-details

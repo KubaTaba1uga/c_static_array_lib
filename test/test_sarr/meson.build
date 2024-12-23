@@ -1,15 +1,23 @@
-test_sarr_name = 'test_sarr.c'
+# List of test files
+test_files = [
+  'test_sarr_int.c',
+  'test_sarr_struct.c'
+]
 
-sarr_test_src = files([
-  test_sarr_name
-])
+# Iterate over test files
+foreach test_file : test_files
+  # Extract base name for the target
+  test_name = test_file.split('.')[0]
 
-test_sarr_exe = executable('test_sarr',
-  sources: [
-   sarr_test_src,
-   gen_test_runner.process(test_sarr_name)
-  ],
-  dependencies: test_dependencies,
-)
+  # Create an executable target for the test
+  test_exe = executable(test_name,
+    sources: [
+      test_file,
+      gen_test_runner.process(test_file)
+    ],
+    dependencies: test_dependencies
+  )
 
-test('test_sarr', test_sarr_exe)
+  # Register the test
+  test(test_name, test_exe)
+endforeach

@@ -7,7 +7,7 @@ SARR_DECL(test_array, int, 10);
 
 void setUp(void) {
   // Reset valid length before each test
-  test_array_length_value = 0;
+  test_array_offset = 0;
 }
 
 void tearDown(void) {

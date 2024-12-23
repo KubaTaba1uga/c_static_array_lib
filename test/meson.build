@@ -9,3 +9,4 @@ test_dependencies = [static_array_lib, unity_dependency]
 
 subdir('test_unity')
 subdir('test_sarr')
+subdir('test_sarrs')

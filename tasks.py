@@ -1,6 +1,7 @@
 ###############################################
 #                Imports                      #
 ###############################################
+import fnmatch
 import logging
 import os
 import shutil
@@ -52,6 +53,10 @@ def test(c, builddir=BUILD_DIR, test_name=None):
     """
     Run tests using the Meson build system.
     """
+    logging.info("Reconfiguring build directory for tests: %s", builddir)
+    configure_command = ["meson", "configure", builddir, "-Dtests=true"]
+    run_command(c, configure_command)
+
     logging.info("Running tests in directory: %s", builddir)
     command = ["meson", "test", "-C", builddir]
     if test_name:
@@ -60,7 +65,34 @@ def test(c, builddir=BUILD_DIR, test_name=None):
 
 
 @task
+def clean(c, builddir=BUILD_DIR):
+    """
+    Clean the build directory and Emacs temporary files.
+    """
+    EMACS_TEMP_FILES = ["*~", "*.swp", ".#*", ".emacs-places", ".emacs.desktop"]
+
+    logging.info("Cleaning build directory: %s", builddir)
+    if os.path.exists(builddir):
+        shutil.rmtree(builddir)
+        logging.info("Removed build directory: %s", builddir)
+    else:
+        logging.warning("Build directory does not exist: %s", builddir)
+
+    logging.info("Cleaning Emacs temporary files...")
+    for pattern in EMACS_TEMP_FILES:
+        for file in glob_files(pattern):
+            try:
+                os.remove(file)
+                logging.info("Removed file: %s", file)
+            except Exception as e:
+                logging.error("Failed to remove file: %s. Error: %s", file, e)
+
+
+@task
 def install(c):
+    """
+    Install all required dependencies for the project.
+    """
     install_meson(c)
     install_ruby(c)
 
@@ -146,3 +178,13 @@ def command_exists(command):
     Check if a command exists on the system.
     """
     return shutil.which(command) is not None
+
+
+def glob_files(pattern):
+    """
+    Find all files matching a given pattern in the current directory and subdirectories.
+    """
+    for root, dirs, files in os.walk("."):
+        for file in files:
+            if fnmatch.fnmatch(file, pattern):
+                yield os.path.join(root, file)

@@ -7,6 +7,13 @@
 #include <errno.h>
 #include <stddef.h>
 
+/* Define macro to specify UNUSED functions. */
+#ifdef unused
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED
+#endif
+
 /*
  * Declare a global/static array with get, append, size, and length functions.
  * length() now tracks the last valid index (number of valid elements - 1).
@@ -29,8 +36,9 @@
       *value = &name[i];                                                       \
     return 0;                                                                  \
   }                                                                            \
-  static inline size_t name##_size() { return capacity; }                      \
-  static inline size_t name##_length() { return name##_offset; }
+  static inline size_t name##_size(void) UNUSED;                               \
+  static inline size_t name##_size(void) { return capacity; }                  \
+  static inline size_t name##_length(void) { return name##_offset; }
 
 /*
  * Declare append, get, size, and length for an array field in a struct.
@@ -53,6 +61,7 @@
       *value = (type *)&s->field[i];                                           \
     return 0;                                                                  \
   }                                                                            \
+  static inline size_t struct_type##_##field##_size(void) UNUSED;              \
   static inline size_t struct_type##_##field##_size(void) { return capacity; } \
   static inline size_t struct_type##_##field##_length(const struct_type *s) {  \
     return s->field##_offset;                                                  \

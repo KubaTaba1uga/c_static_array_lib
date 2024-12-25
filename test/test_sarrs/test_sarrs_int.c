@@ -1,6 +1,5 @@
-#include <unity.h>
-
 #include "static_array_lib.h"
+#include <unity.h>
 
 /* Define a struct with an int array field using SARRS */
 typedef struct {
@@ -10,18 +9,15 @@ typedef struct {
 /* Declare SARRS functions for IntArrayStruct's array */
 SARRS_DECL(IntArrayStruct, my_array, int, 10);
 
-void setUp(void) {
-  // No setup needed for now
-}
+IntArrayStruct s;
+
+void setUp(void) { IntArrayStruct_my_array_init(&s); }
 
 void tearDown(void) {
   // No teardown needed for now
 }
 
 void test_saars_append(void) {
-  IntArrayStruct s;
-  SARRS_INIT(s, my_array);
-
   // Test appending elements
   TEST_ASSERT_EQUAL_INT(0, IntArrayStruct_my_array_append(&s, 42));
   TEST_ASSERT_EQUAL_INT(0, IntArrayStruct_my_array_append(&s, 99));
@@ -31,19 +27,18 @@ void test_saars_append(void) {
 }
 
 void test_saars_get(void) {
-  IntArrayStruct s;
-  SARRS_INIT(s, my_array);
-
   // Prepopulate the array
   IntArrayStruct_my_array_append(&s, 42);
   IntArrayStruct_my_array_append(&s, 99);
 
-  int value;
+  int *value;
   // Test getting elements
   TEST_ASSERT_EQUAL_INT(0, IntArrayStruct_my_array_get(&s, 0, &value));
-  TEST_ASSERT_EQUAL_INT(42, value);
+  TEST_ASSERT_NOT_NULL(value);
+  TEST_ASSERT_EQUAL_INT(42, *value);
   TEST_ASSERT_EQUAL_INT(0, IntArrayStruct_my_array_get(&s, 1, &value));
-  TEST_ASSERT_EQUAL_INT(99, value);
+  TEST_ASSERT_NOT_NULL(value);
+  TEST_ASSERT_EQUAL_INT(99, *value);
 }
 
 void test_saars_size(void) {
@@ -52,9 +47,6 @@ void test_saars_size(void) {
 }
 
 void test_saars_length(void) {
-  IntArrayStruct s;
-  SARRS_INIT(s, my_array);
-
   // Test initial length
   TEST_ASSERT_EQUAL_INT(0, IntArrayStruct_my_array_length(&s));
 
@@ -67,12 +59,9 @@ void test_saars_length(void) {
 }
 
 void test_saars_out_of_bounds_append(void) {
-  IntArrayStruct s;
-  SARRS_INIT(s, my_array);
-
   // Ensure appending beyond capacity is handled properly
   for (size_t i = 0; i < 10; ++i) {
-    TEST_ASSERT_EQUAL_INT(0, IntArrayStruct_my_array_append(&s, i));
+    TEST_ASSERT_EQUAL_INT(0, IntArrayStruct_my_array_append(&s, (int)i));
   }
 
   // This append should fail
@@ -80,14 +69,11 @@ void test_saars_out_of_bounds_append(void) {
 }
 
 void test_saars_out_of_bounds_get(void) {
-  IntArrayStruct s;
-  SARRS_INIT(s, my_array);
-
   // Prepopulate the array
   IntArrayStruct_my_array_append(&s, 42);
   IntArrayStruct_my_array_append(&s, 99);
 
-  int value;
+  int *value;
   // Test getting out-of-bounds index
   TEST_ASSERT_EQUAL_INT(ENOENT, IntArrayStruct_my_array_get(&s, 15, &value));
 

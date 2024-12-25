@@ -1,6 +1,5 @@
-#include <unity.h>
-
 #include "static_array_lib.h"
+#include <unity.h>
 
 /* Define a custom struct to use with SARR */
 typedef struct {
@@ -21,20 +20,22 @@ void tearDown(void) {
 }
 
 void test_sarr_append_get_struct(void) {
-  CustomStruct value;
+  CustomStruct *value;
 
   // Test appending and getting elements
   CustomStruct item1 = {1, "Item1"};
   TEST_ASSERT_EQUAL_INT(0, custom_array_append(item1));
   TEST_ASSERT_EQUAL_INT(0, custom_array_get(0, &value));
-  TEST_ASSERT_EQUAL_INT(1, value.id);
-  TEST_ASSERT_EQUAL_STRING("Item1", value.name);
+  TEST_ASSERT_NOT_NULL(value);
+  TEST_ASSERT_EQUAL_INT(1, value->id);
+  TEST_ASSERT_EQUAL_STRING("Item1", value->name);
 
   CustomStruct item2 = {2, "Item2"};
   TEST_ASSERT_EQUAL_INT(0, custom_array_append(item2));
   TEST_ASSERT_EQUAL_INT(0, custom_array_get(1, &value));
-  TEST_ASSERT_EQUAL_INT(2, value.id);
-  TEST_ASSERT_EQUAL_STRING("Item2", value.name);
+  TEST_ASSERT_NOT_NULL(value);
+  TEST_ASSERT_EQUAL_INT(2, value->id);
+  TEST_ASSERT_EQUAL_STRING("Item2", value->name);
 }
 
 void test_sarr_size_struct(void) {
@@ -68,7 +69,7 @@ void test_sarr_out_of_bounds_struct(void) {
   // This append should fail
   TEST_ASSERT_EQUAL_INT(ENOBUFS, custom_array_append(item));
 
-  CustomStruct value;
+  CustomStruct *value;
   TEST_ASSERT_EQUAL_INT(ENOENT, custom_array_get(15, &value));
 
   // Check that the length remains consistent

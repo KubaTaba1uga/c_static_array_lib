@@ -21,12 +21,12 @@
     name[name##_offset++] = val;                                               \
     return 0; /* Success */                                                    \
   }                                                                            \
-  static inline int name##_get(size_t i, type *value) {                        \
+  static inline int name##_get(size_t i, type **value) {                       \
     if (i >= name##_offset) {                                                  \
       return ENOENT; /* Error: index out of bounds */                          \
     }                                                                          \
     if (value)                                                                 \
-      *value = name[i];                                                        \
+      *value = &name[i];                                                       \
     return 0;                                                                  \
   }                                                                            \
   static inline size_t name##_size() { return capacity; }                      \
@@ -45,28 +45,25 @@
     return 0; /* Success */                                                    \
   }                                                                            \
   static inline int struct_type##_##field##_get(const struct_type *s,          \
-                                                size_t i, type *value) {       \
+                                                size_t i, type **value) {      \
     if (i >= s->field##_offset) {                                              \
       return ENOENT; /* Error: index out of bounds */                          \
     }                                                                          \
     if (value)                                                                 \
-      *value = s->field[i];                                                    \
+      *value = (type *)&s->field[i];                                           \
     return 0;                                                                  \
   }                                                                            \
   static inline size_t struct_type##_##field##_size(void) { return capacity; } \
   static inline size_t struct_type##_##field##_length(const struct_type *s) {  \
     return s->field##_offset;                                                  \
+  }                                                                            \
+  static inline void struct_type##_##field##_init(struct_type *s) {            \
+    s->field##_offset = 0;                                                     \
   }
 
 /* Helper macro to declare a field for valid length tracking in the struct */
 #define SARRS_FIELD(field, type, capacity)                                     \
   type field[capacity];                                                        \
   size_t field##_offset;
-
-/* Macro to initialize a struct with a static array field */
-#define SARRS_INIT(struct_instance, field)                                     \
-  do {                                                                         \
-    struct_instance.field##_offset = 0;                                        \
-  } while (0)
 
 #endif /* SARR_H */

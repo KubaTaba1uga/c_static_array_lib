@@ -1,6 +1,5 @@
-#include <unity.h>
-
 #include "static_array_lib.h"
+#include <unity.h>
 
 /* Define a custom struct for testing */
 typedef struct {
@@ -16,18 +15,15 @@ typedef struct {
 /* Declare SARRS functions for CustomStructArrayStruct's array */
 SARRS_DECL(CustomStructArrayStruct, my_array, CustomStruct, 10);
 
-void setUp(void) {
-  // No setup needed for now
-}
+CustomStructArrayStruct s;
+
+void setUp(void) { CustomStructArrayStruct_my_array_init(&s); }
 
 void tearDown(void) {
   // No teardown needed for now
 }
 
 void test_saars_append_custom_struct(void) {
-  CustomStructArrayStruct s;
-  SARRS_INIT(s, my_array);
-
   // Test appending elements
   CustomStruct item1 = {1, "Item1"};
   CustomStruct item2 = {2, "Item2"};
@@ -39,24 +35,23 @@ void test_saars_append_custom_struct(void) {
 }
 
 void test_saars_get_custom_struct(void) {
-  CustomStructArrayStruct s;
-  SARRS_INIT(s, my_array);
-
   // Prepopulate the array
   CustomStruct item1 = {1, "Item1"};
   CustomStruct item2 = {2, "Item2"};
   CustomStructArrayStruct_my_array_append(&s, item1);
   CustomStructArrayStruct_my_array_append(&s, item2);
 
-  CustomStruct value;
+  CustomStruct *value;
   // Test getting elements
   TEST_ASSERT_EQUAL_INT(0, CustomStructArrayStruct_my_array_get(&s, 0, &value));
-  TEST_ASSERT_EQUAL_INT(1, value.id);
-  TEST_ASSERT_EQUAL_STRING("Item1", value.name);
+  TEST_ASSERT_NOT_NULL(value);
+  TEST_ASSERT_EQUAL_INT(1, value->id);
+  TEST_ASSERT_EQUAL_STRING("Item1", value->name);
 
   TEST_ASSERT_EQUAL_INT(0, CustomStructArrayStruct_my_array_get(&s, 1, &value));
-  TEST_ASSERT_EQUAL_INT(2, value.id);
-  TEST_ASSERT_EQUAL_STRING("Item2", value.name);
+  TEST_ASSERT_NOT_NULL(value);
+  TEST_ASSERT_EQUAL_INT(2, value->id);
+  TEST_ASSERT_EQUAL_STRING("Item2", value->name);
 }
 
 void test_saars_size_custom_struct(void) {
@@ -65,9 +60,6 @@ void test_saars_size_custom_struct(void) {
 }
 
 void test_saars_length_custom_struct(void) {
-  CustomStructArrayStruct s;
-  SARRS_INIT(s, my_array);
-
   // Test initial length
   TEST_ASSERT_EQUAL_INT(0, CustomStructArrayStruct_my_array_length(&s));
 
@@ -82,9 +74,6 @@ void test_saars_length_custom_struct(void) {
 }
 
 void test_saars_out_of_bounds_append_custom_struct(void) {
-  CustomStructArrayStruct s;
-  SARRS_INIT(s, my_array);
-
   // Ensure appending beyond capacity is handled properly
   for (size_t i = 0; i < 10; ++i) {
     CustomStruct temp = {i, "Item"};
@@ -98,14 +87,11 @@ void test_saars_out_of_bounds_append_custom_struct(void) {
 }
 
 void test_saars_out_of_bounds_get_custom_struct(void) {
-  CustomStructArrayStruct s;
-  SARRS_INIT(s, my_array);
-
   // Prepopulate the array
   CustomStruct item1 = {1, "Item1"};
   CustomStructArrayStruct_my_array_append(&s, item1);
 
-  CustomStruct value;
+  CustomStruct *value;
   // Test getting out-of-bounds index
   TEST_ASSERT_EQUAL_INT(ENOENT,
                         CustomStructArrayStruct_my_array_get(&s, 15, &value));

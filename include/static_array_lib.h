@@ -21,6 +21,7 @@
 #define SARR_DECL(name, type, capacity)                                        \
   type name[capacity];                                                         \
   size_t name##_offset = 0;                                                    \
+  static inline int name##_append(type val) UNUSED;                            \
   static inline int name##_append(type val) {                                  \
     if (name##_offset >= capacity) {                                           \
       return ENOBUFS; /* Error: array full */                                  \
@@ -28,6 +29,7 @@
     name[name##_offset++] = val;                                               \
     return 0; /* Success */                                                    \
   }                                                                            \
+  static inline int name##_get(size_t i, type **value) UNUSED;                 \
   static inline int name##_get(size_t i, type **value) {                       \
     if (i >= name##_offset) {                                                  \
       return ENOENT; /* Error: index out of bounds */                          \
@@ -38,6 +40,7 @@
   }                                                                            \
   static inline size_t name##_size(void) UNUSED;                               \
   static inline size_t name##_size(void) { return capacity; }                  \
+  static inline size_t name##_length(void) UNUSED;                             \
   static inline size_t name##_length(void) { return name##_offset; }
 
 /*
@@ -45,6 +48,8 @@
  * length() tracks the last valid index (number of valid elements - 1).
  */
 #define SARRS_DECL(struct_type, field, type, capacity)                         \
+  static inline int struct_type##_##field##_append(struct_type *s, type val)   \
+      UNUSED;                                                                  \
   static inline int struct_type##_##field##_append(struct_type *s, type val) { \
     if (s->field##_offset >= capacity) {                                       \
       return ENOBUFS; /* Error: array full */                                  \
@@ -52,6 +57,8 @@
     s->field[s->field##_offset++] = val;                                       \
     return 0; /* Success */                                                    \
   }                                                                            \
+  static inline int struct_type##_##field##_get(                               \
+      const struct_type *s, size_t i, type **value) UNUSED;                    \
   static inline int struct_type##_##field##_get(const struct_type *s,          \
                                                 size_t i, type **value) {      \
     if (i >= s->field##_offset) {                                              \
@@ -63,9 +70,12 @@
   }                                                                            \
   static inline size_t struct_type##_##field##_size(void) UNUSED;              \
   static inline size_t struct_type##_##field##_size(void) { return capacity; } \
+  static inline size_t struct_type##_##field##_length(const struct_type *s)    \
+      UNUSED;                                                                  \
   static inline size_t struct_type##_##field##_length(const struct_type *s) {  \
     return s->field##_offset;                                                  \
   }                                                                            \
+  static inline void struct_type##_##field##_init(struct_type *s) UNUSED;      \
   static inline void struct_type##_##field##_init(struct_type *s) {            \
     s->field##_offset = 0;                                                     \
   }
